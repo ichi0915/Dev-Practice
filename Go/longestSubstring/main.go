@@ -17,15 +17,16 @@ import (
 )
 
 func main() {
-	fmt.Println("Response: ", lengthOfLongestSubstring("pwwkew")) // response 3 -- The answer is "wke", with the length of 3.
+	// fmt.Println("Response: ", lengthOfLongestSubstring("pwwkew")) // response 3 -- The answer is "wke", with the length of 3.
 	// fmt.Println("Response: ", lengthOfLongestSubstring("dvdf")) // response 3
+	// fmt.Println("Response: ", lengthOfLongestSubstring("abcabcbb")) // response 3
+	fmt.Println("Response: ", lengthOfLongestSubstring(" ")) // response 1
 }
 
 func lengthOfLongestSubstring(s string) int {
 	response := 0
 	currentMapPos := 0
 	finalList := map[int]string{0: ""}
-	var skipList []int
 
 	for _, char := range s {
 		// value, isMapContainsKey := current_list[currentMapPos]
@@ -35,13 +36,16 @@ func lengthOfLongestSubstring(s string) int {
 			// fmt.Println("finalList", finalList)
 			// fmt.Println("skipList", skipList)
 
-			if !checkIfInSkipList(i, skipList) {
-				if strings.Contains(finalList[i], string(char)) {
-					// fmt.Println("adding to skipList", i)
-					skipList = append(skipList, i)
-				} else {
-					finalList[i] = finalList[i] + string(char)
+			if strings.Contains(finalList[i], string(char)) {
+				for _, value := range finalList {
+					length := len(value)
+					if length > response {
+						response = length
+					}
 				}
+				delete(finalList, i)
+			} else {
+				finalList[i] = finalList[i] + string(char)
 			}
 		}
 		currentMapPos++
@@ -61,6 +65,7 @@ func lengthOfLongestSubstring(s string) int {
 	return response
 }
 
+// Not used functions but cool
 func checkIfInSkipList(valueToCheck int, skipList []int) bool {
 	for _, listValue := range skipList {
 		if listValue == valueToCheck {
@@ -70,7 +75,6 @@ func checkIfInSkipList(valueToCheck int, skipList []int) bool {
 	return false
 }
 
-// Not used functions but cool
 func intToString(value int) string {
 	return strconv.FormatInt(int64(value), 10)
 }
