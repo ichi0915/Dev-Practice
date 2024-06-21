@@ -42,7 +42,7 @@ class AccentureQuestion1 {
 	public static class Student {
 		public String name;
 		public String group;
-		public String listNumber;
+		public int listNumber;
 		public List<Assignment> assignments = new ArrayList<Assignment>();
 	}
 
@@ -62,6 +62,9 @@ class AccentureQuestion1 {
 		System.out.println(studentsNotes);
 
 		final List<Student> students = formatGrades(studentsNotes);
+		// final List<Student> students = formatGrades("F, 23, Jose");					// Testing on bad data
+		// final List<Student> students = formatGrades("");								// Testing on empty string
+		// final List<Student> students = formatGrades(null);							// Testing on null value
 
 		System.out.println("==== New format ====");
 		printStudents(students);
@@ -75,39 +78,44 @@ class AccentureQuestion1 {
 		List<Assignment> assignments = null;
 		Assignment assignment = null;
 
-		String[] studentsNotesArray = studentsNotes.split("\n");
+		if (null != studentsNotes && !studentsNotes.isEmpty()) {
+			String[] studentsNotesArray = studentsNotes.split("\n");
 
-		for(int i = 0; i < studentsNotesArray.length; i++) {
-			// We add a space after the comma ", " to avoid trimming the csvLine
-			final String[] csvLine = studentsNotesArray[i].split(", ");
+			for(int i = 0; i < studentsNotesArray.length; i++) {
+				// We add a space after the comma ", " to avoid trimming the csvLine
+				final String[] csvLine = studentsNotesArray[i].split(", ");
 
-			if (csvLine[0].equals("S")) {
-				// If null we are in the first student
-				if (null != student) {
-					students.add(student);
+				if (csvLine[0].equals("S")) {
+					// If null we are in the first student
+					if (null != student) {
+						students.add(student);
+					}
+					student = new Student();
+					assignments = new ArrayList<>();
+
+					student.group = csvLine[1] + " - " + csvLine[2];
+					student.listNumber = Integer.parseInt(csvLine[3]);
+					student.name = csvLine[4];
+					student.assignments = assignments;
 				}
-				student = new Student();
-				assignments = new ArrayList<>();
+				else if (csvLine[0].equals("N")) {
+					// Should never be null but just to be sure
+					if (null != assignments) {
+						assignment = new Assignment();
+						assignment.name = csvLine[1];
+						assignment.grade = Integer.parseInt(csvLine[2]);
 
-				student.group = csvLine[1] + " - " + csvLine[2];
-				student.listNumber = csvLine[3];
-				student.name = csvLine[4];
-				student.assignments = assignments;
-			}
-			else if (csvLine[0].equals("N")) {
-				// Should never be null but just to be sure
-				if (null != assignments) {
-					assignment = new Assignment();
-					assignment.name = csvLine[1];
-					assignment.grade = Integer.parseInt(csvLine[2]);
-
-					assignments.add(assignment);
+						assignments.add(assignment);
+					}
+				}
+				else {
+					// Throw Exception or something
+					System.out.println("CSV line has a wrong format");
 				}
 			}
-			else {
-				// Throw Exception or something
-				System.out.println("CSV line has a wrong format");
-			}
+
+			// Adding last student
+			students.add(student);
 		}
 
 		return students;
@@ -120,13 +128,15 @@ class AccentureQuestion1 {
 	 */
 	public static void printStudents(final List<Student> students) {
 		for (final Student student : students) {
-			final int assignmentLen = student.assignments.size();
+			if (null != student) {
+				final int assignmentLen = student.assignments.size();
 
-			System.out.println("\nNombre: " + student.name + ", Grupo: " + student.group + ", Numero lista: " + student.listNumber);
+				System.out.println("\nNombre: " + student.name + ", Grupo: " + student.group + ", Numero lista: " + student.listNumber);
 
-			for (int i = 0; i < assignmentLen; i++ ) {
-				final Assignment assignment = student.assignments.get(i);
-				System.out.println(String.format("Materia %d: %s %s", i+1, assignment.name, assignment.grade));
+				for (int i = 0; i < assignmentLen; i++ ) {
+					final Assignment assignment = student.assignments.get(i);
+					System.out.println(String.format("Materia %d: %s %s", i+1, assignment.name, assignment.grade));
+				}
 			}
 		}
 	}
